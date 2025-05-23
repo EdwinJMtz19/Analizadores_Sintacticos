@@ -1,0 +1,1 @@
+iniciar r1.base = 90 r1.garra = 20 finalizar

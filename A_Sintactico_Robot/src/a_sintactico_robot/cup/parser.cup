@@ -1,0 +1,56 @@
+package a_sintactico_robot;
+
+import java_cup.runtime.*;
+
+parser code {:
+    private StringBuilder errores = new StringBuilder();
+    
+    public String getErrores() {
+        return errores.toString();
+    }
+    
+    private void reportError(String mensaje, Symbol s) {
+        errores.append("Error sintáctico en línea ").append(s.left)
+              .append(", columna ").append(s.right)
+              .append(": ").append(mensaje).append("\n");
+    }
+:};
+
+/* Terminales */
+terminal String ROBOT, METODO, ACCION, IDENTIFICADOR;
+terminal Integer NUMERO;
+terminal String IGUAL, PUNTO;
+
+/* No terminales */
+non terminal programa;
+non terminal instrucciones;
+non terminal instruccion;
+non terminal declaracion_robot;
+non terminal comando;
+
+/* Inicio */
+start with programa;
+
+/* Reglas gramaticales */
+programa ::= instrucciones
+            ;
+
+instrucciones ::= instrucciones instruccion 
+                | instruccion
+                ;
+
+instruccion ::= declaracion_robot 
+              | comando
+              | error {: 
+                  reportError("Estructura de comando incorrecta", (Symbol)stack.peek()); 
+                :}
+              ;
+
+declaracion_robot ::= ROBOT IDENTIFICADOR
+                    ;
+
+comando ::= IDENTIFICADOR PUNTO METODO IGUAL NUMERO {: /* Comando con valor */ :}
+          | IDENTIFICADOR PUNTO ACCION IGUAL NUMERO {: /* Comando con valor */ :}
+          | IDENTIFICADOR PUNTO METODO {: /* Comando sin valor */ :}
+          | IDENTIFICADOR PUNTO ACCION {: /* Comando sin valor */ :}
+          ;
